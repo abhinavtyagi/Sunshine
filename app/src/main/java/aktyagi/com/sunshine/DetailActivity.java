@@ -1,25 +1,35 @@
 package aktyagi.com.sunshine;
 
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
-
-public class MainActivity extends ActionBarActivity {
+public class DetailActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        View view = getLayoutInflater().inflate(R.layout.activity_detail, null);
+
+        TextView textview = (TextView) view.findViewById(R.id.detailedActivityTextView);
+        Intent intent = getIntent();
+        String msg = intent.getStringExtra("forecast");
+        textview.setText(msg);
+        setContentView(view);
+        if(savedInstanceState==null){
+            getSupportFragmentManager().beginTransaction().add(R.id.fragment, new DetailActivityFragment()).commit();
+        }
     }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.menu_detail, menu);
         return true;
     }
 

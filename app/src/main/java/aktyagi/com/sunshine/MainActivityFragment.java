@@ -2,9 +2,12 @@ package aktyagi.com.sunshine;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.text.format.Time;
@@ -15,8 +18,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import junit.framework.Assert;
 
@@ -30,6 +35,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.prefs.Preferences;
 
 
 //import org.json.simple.JSONObject;
@@ -61,19 +67,31 @@ public class MainActivityFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id==R.id.action_refresh)
         {
-            String[] zip = {"94043"};
-            FetchWeatherTaskDataInput threadArg = new FetchWeatherTaskDataInput(zip,mForecastAdapter);
-            new FetchWeatherTask().execute(threadArg);
+            updateWeather();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    private void updateWeather(){
+        String[] zip = {"0"};
+        SharedPreferences pref =  PreferenceManager.getDefaultSharedPreferences(getActivity());;
+        if(pref.contains(getString(R.string.preference_location)))
+            zip[0] = pref.getString(getString(R.string.preference_location), "94043");
+        FetchWeatherTaskDataInput threadArg = new FetchWeatherTaskDataInput(zip,mForecastAdapter);
+        new FetchWeatherTask().execute(threadArg);
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -102,6 +120,15 @@ public class MainActivityFragment extends Fragment {
             FetchWeatherTaskDataInput threadArg = new FetchWeatherTaskDataInput(zip, mForecastAdapter);
             new FetchWeatherTask().execute(threadArg);
         }
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String forecast = mForecastAdapter.getItem(position);
+                Intent intent = new Intent(getActivity(), DetailActivity.class);
+                intent.putExtra("forecast", forecast);
+                startActivity(intent);
+            }
+        });
 
         return rootview;
     }
@@ -271,9 +298,16 @@ public class MainActivityFragment extends Fragment {
          */
         private String formatHighLows(double high, double low) {
             // For presentation, assume the user doesn't care about tenths of a degree.
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String unit = pref.getString(getString(R.string.preference_unit), getString(R.string.preferences_metric_default_value));
+            double scaleFactor = 1.0;
+            if(unit.equals(getString(R.string.preferences_metric_default_value))==false)
+            {
+                high = high*1.8+32;
+                low  = low *1.8+32;
+            }
             long roundedHigh = Math.round(high);
             long roundedLow = Math.round(low);
-
             String highLowStr = roundedHigh + "/" + roundedLow;
             return highLowStr;
         }
