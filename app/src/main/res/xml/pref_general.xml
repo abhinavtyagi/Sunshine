@@ -5,13 +5,16 @@
         android:key="@string/preference_location"
         android:defaultValue="94043"
         android:inputType="text"
-        android:singleLine="true"/>
+        android:singleLine="true"
+        android:summary="EditTextSummary"
+        />
 
-    <ListPreference android:title="Metrics"
+    <ListPreference android:title="Temperature"
         android:key="@string/preference_unit"
         android:entries="@array/preferences_metric_entries"
         android:entryValues="@array/preferences_metric_entry_values"
         android:defaultValue="@string/preferences_metric_default_value"
+        android:summary="ListSummary"
         />
 
 </PreferenceScreen>
