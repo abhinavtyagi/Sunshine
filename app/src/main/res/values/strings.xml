@@ -9,4 +9,5 @@
     <string name="preference_location">location</string>
     <string name="preference_unit">unit</string>
     <string name="preferences_metric_default_value">metric</string>
+    <string name="openweather_apikey">77683bb70a7e7ea5d5aff7cf769efcfd</string>
 </resources>

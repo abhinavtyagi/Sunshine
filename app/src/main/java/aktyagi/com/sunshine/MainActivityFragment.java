@@ -75,10 +75,15 @@ public class MainActivityFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if(id==R.id.action_refresh)
-        {
-            updateWeather();
-            return true;
+        switch(id){
+            case R.id.action_refresh:
+                                        updateWeather();
+                                        return true;
+            case R.id.action_maplocation:
+                                        Intent mapIntent = new Intent("ACTIVITY_MAP");
+                                            System.out.println("KK");
+                mapIntent.resolveActivity(getActivity().getPackageManager());
+                                        return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -177,6 +182,7 @@ public class MainActivityFragment extends Fragment {
             NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
             NetworkInfo.State nwState = networkInfo.getState();
             Assert.assertEquals(nwState, NetworkInfo.State.CONNECTED);
+            String[] output = null;
             try {
                 // Construct the URL for the OpenWeatherMap query
                 // Possible parameters are avaiable at OWM's forecast API page, at
@@ -215,9 +221,11 @@ public class MainActivityFragment extends Fragment {
                 forecastJsonStr = buffer.toString();
             } catch (Exception e) {
                 Log.e("PlaceholderFragment", "Error ", e);
+
                 // If the code didn't successfully get the weather data, there's no point in attemping
                 // to parse it.
-                return null;
+                output = new String[7];
+                output[0]=output[1]=output[2]=output[3]=output[4]=output[5]=output[6]="Error";
             } finally{
                 if (urlConnection != null) {
                     urlConnection.disconnect();
@@ -230,18 +238,18 @@ public class MainActivityFragment extends Fragment {
                     }
                 }
             }
-            Log.i("JSON String Messsage", forecastJsonStr);
+            if(forecastJsonStr!=null) {
+                Log.i("JSON String Messsage", forecastJsonStr);
 
-            String[] output = null;
+                try {
+                    JSONHelper jHelper = new JSONHelper();
+                    output = jHelper.getWeatherDataFromJson(forecastJsonStr, 7);
+                } catch (JSONException je) {
+                    System.out.println("Catch JSON->" + je);
 
-            try {
-                JSONHelper jHelper = new JSONHelper();
-                output = jHelper.getWeatherDataFromJson(forecastJsonStr,7);
-            }catch(JSONException je){
-                System.out.println("Catch JSON->"+je);
-
-            }            finally {
-                System.out.println("Finally JSON Parsing");
+                } finally {
+                    System.out.println("Finally JSON Parsing");
+                }
             }
             FetchWeatherTaskOutput out = new FetchWeatherTaskOutput(output, input[0].getListAdapter());
             return out;
@@ -278,7 +286,7 @@ public class MainActivityFragment extends Fragment {
         public String buildURI(String postCode)
         {
             String strURLPrefix = "http://api.openweathermap.org/data/2.5/forecast/daily?q=";
-            String strURLPostFix = "&mode=json&units=metric&cnt=7";
+            String strURLPostFix = "&mode=json&units=metric&cnt=7&APPID="+getString(R.string.openweather_apikey);
             String strURL = strURLPrefix+postCode+strURLPostFix;
             System.out.println("["+strURL+"]");
             return strURL;
