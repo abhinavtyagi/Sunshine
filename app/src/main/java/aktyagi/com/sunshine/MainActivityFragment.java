@@ -1,11 +1,14 @@
 package aktyagi.com.sunshine;
 
 import android.animation.ObjectAnimator;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -80,13 +83,29 @@ public class MainActivityFragment extends Fragment {
                                         updateWeather();
                                         return true;
             case R.id.action_maplocation:
-                                        Intent mapIntent = new Intent("ACTIVITY_MAP");
-                                            System.out.println("KK");
-                mapIntent.resolveActivity(getActivity().getPackageManager());
-                                        return true;
+                onPreferredLocationInMap();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    private void onPreferredLocationInMap(){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String location = sharedPreferences.getString(getString(R.string.preference_location), "94043");
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW);
+        PackageManager packageManager = getActivity().getPackageManager();
+        Uri uri = Uri.parse("geo:0,0?").buildUpon().appendQueryParameter("q",location).build();
+        mapIntent.setData(uri);
+        ComponentName componentName = mapIntent.resolveActivity(packageManager);
+        if(componentName==null){
+            Log.e(this.getClass().getName(), "No intent handlers available");
+            Toast toast = Toast.makeText(getActivity(), "Error: No app found to show map!", Toast.LENGTH_SHORT);
+            toast.show();
+        }
+        else{
+            Log.i(this.getClass().getName(), "IntentFound:" + componentName.toString());
+            startActivity(mapIntent);
+        }
     }
 
     private void updateWeather(){

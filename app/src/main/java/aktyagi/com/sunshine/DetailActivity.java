@@ -1,5 +1,7 @@
 package aktyagi.com.sunshine;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -7,9 +9,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class DetailActivity extends AppCompatActivity {
 
+    private String mForecast;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -17,8 +21,8 @@ public class DetailActivity extends AppCompatActivity {
 
         TextView textview = (TextView) view.findViewById(R.id.detailedActivityTextView);
         Intent intent = getIntent();
-        String msg = intent.getStringExtra("forecast");
-        textview.setText(msg);
+        mForecast = intent.getStringExtra("forecast");
+        textview.setText(mForecast);
         setContentView(view);
         if(savedInstanceState==null){
             getSupportFragmentManager().beginTransaction().add(R.id.fragment, new DetailActivityFragment()).commit();
@@ -41,13 +45,34 @@ public class DetailActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Intent settingsIntent = new Intent(this, SettingsActivity.class);
-            startActivity(settingsIntent);
-            return true;
+        switch (id){
+            case R.id.action_settings:
+                Intent settingsIntent = new Intent(this, SettingsActivity.class);
+                startActivity(settingsIntent);
+                return true;
+
+            case R.id.action_share:
+                onShareActionClicked();;
+                return true;
         }
 
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void onShareActionClicked(){
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, mForecast+" #Sunshine");
+        shareIntent.setType("text/plain");
+        ComponentName componentName = shareIntent.resolveActivity(getPackageManager());
+        if(componentName!=null){
+            startActivity(shareIntent);
+        }
+        else {
+            Context appContext = getApplicationContext();
+            Toast toast = Toast.makeText(appContext, "No Intents Found", Toast.LENGTH_SHORT);
+            toast.show();
+        }
     }
 }
