@@ -3,18 +3,48 @@ package aktyagi.com.sunshine;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 
 public class MainActivity extends ActionBarActivity {
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.w("Info", "onStop()"+this);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.w("Info", "onStart()"+this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.w("Info", "onResume()"+this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.w("Info", "onPause()"+this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.w("Info", "onCreate()"+this);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.w("Info", "onDestroy()"+this);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

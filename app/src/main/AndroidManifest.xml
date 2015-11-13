@@ -28,6 +28,9 @@
             android:label="SettingsActivity"
             android:parentActivityName=".MainActivity">
         </activity>
+        <provider
+            android:authorities="aktyagi.com.sunshine"
+            android:name=".data.WeatherProvider"/>
     </application>
 
 </manifest>
