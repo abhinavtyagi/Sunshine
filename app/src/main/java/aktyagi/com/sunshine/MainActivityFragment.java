@@ -4,9 +4,9 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,18 +15,25 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
-import java.util.ArrayList;
+
+import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+
+import aktyagi.com.sunshine.data.WeatherContract;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment {
+public class MainActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private ArrayAdapter<String> mForecastAdapter;
+    private ForecastAdapter mForecastAdapter;
+    private ListView listView = null;
+    final static int MY_LOADER_ID = 0x12121212;
+
     public MainActivityFragment() {
 
     }
@@ -63,6 +70,38 @@ public class MainActivityFragment extends Fragment {
 
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        mForecastAdapter = new ForecastAdapter(getActivity(), null, 0);
+        View rootview = inflater.inflate(R.layout.fragment_main, container, false);
+        listView = (ListView)rootview.findViewById(R.id.id_listview_forecast);
+        listView.setAdapter(mForecastAdapter);
+        return rootview;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(MY_LOADER_ID, null, this);
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    private void updateWeather(){
+        String zip = Utility.getPreferredLocation(getActivity());
+        new FetchWeatherTask(getActivity()).execute(zip);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String locSetting = Utility.getPreferredLocation(getActivity());
+        String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
+        Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(locSetting, System.currentTimeMillis());
+        return new CursorLoader(getActivity(), weatherForLocationUri, null, null, null, sortOrder);
+    }
+
+
     private void onPreferredLocationInMap(){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String location = sharedPreferences.getString(getString(R.string.preference_location), "94043");
@@ -82,50 +121,14 @@ public class MainActivityFragment extends Fragment {
         }
     }
 
-    private void updateWeather(){
-        String[] zip = {"0"};
-        SharedPreferences pref =  PreferenceManager.getDefaultSharedPreferences(getActivity());;
-        if(pref.contains(getString(R.string.preference_location)))
-            zip[0] = pref.getString(getString(R.string.preference_location), "94043");
-        new FetchWeatherTask(getActivity(), mForecastAdapter).execute(zip);
-    }
+
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mForecastAdapter.swapCursor(data);
+    }
 
-        ArrayList<String> weekForecast = new ArrayList<String>();
-        if(weekForecast!=null && weekForecast.size()==0)
-        {
-            weekForecast.add("Fetching");
-            weekForecast.add("Fetching");
-            weekForecast.add("Fetching");
-            weekForecast.add("Fetching");
-            weekForecast.add("Fetching");
-            weekForecast.add("Fetching");
-            weekForecast.add("Fetching");
-        }
-        mForecastAdapter = new ArrayAdapter<String>(getActivity(),
-                R.layout.list_item_forecast,
-                R.id.id_list_item_forecast_textview,
-                weekForecast);
-        View rootview = inflater.inflate(R.layout.fragment_main, container, false);
-        ListView listView = (ListView)rootview.findViewById(R.id.id_listview_forecast);
-        listView.setAdapter(mForecastAdapter);
-
-        {
-            String[] zip = {"94043"};
-            new FetchWeatherTask(getActivity(), mForecastAdapter).execute(zip);
-        }
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String forecast = mForecastAdapter.getItem(position);
-                Intent intent = new Intent(getActivity(), DetailActivity.class);
-                intent.putExtra("forecast", forecast);
-                startActivity(intent);
-            }
-        });
-
-        return rootview;
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mForecastAdapter.swapCursor(null);
     }
 }

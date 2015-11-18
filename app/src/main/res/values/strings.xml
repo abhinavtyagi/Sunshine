@@ -7,6 +7,7 @@
     <string name="refresh">Refresh</string>
     <string name="title_activity_detail">DetailActivity</string>
     <string name="preference_location">location</string>
+    <string name="preference_location_default">94043</string>
     <string name="preference_unit">unit</string>
     <string name="preferences_metric_default_value">metric</string>
     <string name="preferences_metric_metric_value">metric</string>
