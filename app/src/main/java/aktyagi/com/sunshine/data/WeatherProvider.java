@@ -23,6 +23,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.util.Log;
 
 import java.util.List;
 
@@ -229,6 +230,7 @@ public class WeatherProvider extends ContentProvider {
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
+        Log.i("----NotificationURI:----", uri.toString());
         retCursor.setNotificationUri(getContext().getContentResolver(), uri);
         return retCursor;
     }
