@@ -83,12 +83,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        updateWeather();
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch(id){
@@ -164,6 +158,10 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         }
     }
 
+    public void onLocationChanged() {
+        updateWeather();
+        getLoaderManager().restartLoader(MY_LOADER_ID, null, this);
+    }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {

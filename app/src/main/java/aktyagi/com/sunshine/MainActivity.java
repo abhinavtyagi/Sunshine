@@ -9,41 +9,20 @@ import android.view.MenuItem;
 
 
 public class MainActivity extends ActionBarActivity {
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.w("Info", "onStop()"+this);
-    }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.w("Info", "onStart()"+this);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.w("Info", "onResume()"+this);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.w("Info", "onPause()"+this);
-    }
+    private String mLocation;
+    private static String FORECAST_FRAG_TAG = "FFT";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        if(savedInstanceState==null) {
+            MainActivityFragment mf = new MainActivityFragment();
+            getSupportFragmentManager().beginTransaction().add(R.id.container, mf, FORECAST_FRAG_TAG).commit();
+        }
+        mLocation = Utility.getPreferredLocation(this);
         Log.w("Info", "onCreate()"+this);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.w("Info", "onDestroy()"+this);
     }
 
     @Override
@@ -68,5 +47,41 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.w("Info", "onStart()"+this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.w("Info", "onPause()"+this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.w("Info", "onStop()"+this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.w("Info", "onDestroy()" + this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MainActivityFragment fragment = (MainActivityFragment) getSupportFragmentManager().findFragmentByTag(FORECAST_FRAG_TAG);
+        if(fragment!=null) {
+            if (mLocation.equalsIgnoreCase(Utility.getPreferredLocation(this))==false) {
+                fragment.onLocationChanged();
+            }
+        }
+        Log.w("Info", "onResume()"+this);
     }
 }
