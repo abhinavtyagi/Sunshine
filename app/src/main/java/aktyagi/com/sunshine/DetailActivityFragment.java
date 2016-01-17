@@ -40,13 +40,22 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
             WeatherContract.WeatherEntry.COLUMN_DATE,
             WeatherContract.WeatherEntry.COLUMN_SHORT_DESC,
             WeatherContract.WeatherEntry.COLUMN_MAX_TEMP,
-            WeatherContract.WeatherEntry.COLUMN_MIN_TEMP
+            WeatherContract.WeatherEntry.COLUMN_MIN_TEMP,
+            WeatherContract.WeatherEntry.COLUMN_HUMIDITY,
+            WeatherContract.WeatherEntry.COLUMN_PRESSURE,
+            WeatherContract.WeatherEntry.COLUMN_WIND_SPEED,
+            WeatherContract.WeatherEntry.COLUMN_DEGREES
     };
-    private static int COL_WEATHER_ID=0,
-    COL_DATE=1,
-    COL_DESC=2,
-    COL_MAX_TEMP=3,
-    COL_MIN_TEMP =4;
+    private static final int
+    COL_WEATHER_ID  = 0,
+    COL_DATE        = 1,
+    COL_DESC        = 2,
+    COL_MAX_TEMP    = 3,
+    COL_MIN_TEMP    = 4,
+    COL_HUMIDITY    = 5,
+    COL_PRESSURE    = 6,
+    COL_WINDSPEED   = 7,
+    COLUMN_DEGREES  = 8;
 
     public DetailActivityFragment() {
         setHasOptionsMenu(true);
@@ -97,15 +106,45 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         data.moveToFirst();
-        Date date = new Date(data.getLong(COL_DATE));
-        String strDate = DateFormat.getDateInstance().format(date);
-        String str = strDate + "," + data.getString(COL_DESC) + " "+
-                data.getDouble(COL_MIN_TEMP)+"/"+data.getDouble(COL_MAX_TEMP);
-        View rootView = getView();
-        TextView tv = (TextView) rootView.findViewById(R.id.detailedActivityTextView);
-        tv.setText(str);
-        Log.i(" - Text for detail - ", str);
-        mForecast = str;
+        long dateInMillSec = data.getLong(COL_DATE);
+        String date = Utility.getFormattedMonthDay(getActivity(), dateInMillSec);
+        String day = Utility.getDayName(getActivity(), dateInMillSec);
+        String desc = data.getString(COL_DESC);
+        String min = getActivity().getString(R.string.format_temperature, data.getDouble(COL_MIN_TEMP));
+        String max = getActivity().getString(R.string.format_temperature, data.getDouble(COL_MAX_TEMP));
+        String pressure = Utility.getFormattedPressure(getActivity(), data.getDouble(COL_PRESSURE));
+        String humidity = Utility.getFormattedHumidity(getActivity(), data.getDouble(COL_HUMIDITY));
+        String windSpeed  = Utility.getFormattedWind(getActivity(), data.getFloat(COL_WINDSPEED), data.getFloat(COLUMN_DEGREES));
+
+
+        mForecast = "#Sunshine - "+date+" Hi/Low "+max+"/"+min+" ("+desc+")";
+
+        View view = getView();
+        TextView tv = null;
+        tv = (TextView) view.findViewById(R.id.id_detailFragment_day);
+        tv.setText(day);
+
+        tv = (TextView) view.findViewById(R.id.id_detailFragment_date);
+        tv.setText(date);
+
+        tv = (TextView) view.findViewById(R.id.id_detailFragment_tempHi);
+        tv.setText(max);
+
+        tv = (TextView) view.findViewById(R.id.id_detailFragment_tempLow);
+        tv.setText(min);
+
+        tv = (TextView) view.findViewById(R.id.id_detailFragment_humidity);
+        tv.setText(humidity);
+
+        tv = (TextView) view.findViewById(R.id.id_detailFragment_wind);
+        tv.setText(windSpeed);
+
+        tv = (TextView) view.findViewById(R.id.id_detailFragment_pressure);
+        tv.setText(pressure);
+
+        tv = (TextView) view.findViewById(R.id.id_detailFragment_desc);
+        tv.setText(desc);
+
         if(mShareActionProvider!=null) {
             mShareActionProvider.setShareIntent(createShareForecastIntent());
         }

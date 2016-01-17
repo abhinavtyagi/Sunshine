@@ -7,9 +7,11 @@ package aktyagi.com.sunshine;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import aktyagi.com.sunshine.data.WeatherContract;
@@ -23,36 +25,32 @@ public class ForecastAdapter extends CursorAdapter {
         super(context, c, flags);
     }
 
-    /**
-     * Prepare the weather high/lows for presentation.
-     */
-    private String formatHighLows(double high, double low) {
-        boolean isMetric = Utility.isMetric(mContext);
-        String highLowStr = Utility.formatTemperature(high, isMetric) + "/" + Utility.formatTemperature(low, isMetric);
-        return highLowStr;
+    private static int VIEW_TYPE_TODAY      = 0;
+    private static int VIEW_TYPE_FUTURE_DAY = 1;
+
+    @Override
+    public int getItemViewType(int position) {
+        return (position==0) ? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE_DAY;
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return 2;
     }
 
     /*
-        This is ported from FetchWeatherTask --- but now we go straight from the cursor to the
-        string.
-     */
-    private String convertCursorRowToUXFormat(Cursor cursor) {
-        // get row indices for our cursor
-        String highAndLow = formatHighLows(
-                cursor.getDouble(MainActivityFragment.COL_WEATHER_MAX_TEMP),
-                cursor.getDouble(MainActivityFragment.COL_WEATHER_MIN_TEMP));
-
-        return Utility.formatDate(cursor.getLong(MainActivityFragment.COL_WEATHER_DATE)) +
-                " - " + cursor.getString(MainActivityFragment.COL_WEATHER_DESC) +
-                " - " + highAndLow;
-    }
-
-    /*
-        Remember that these views are reused as needed.
-     */
+            Remember that these views are reused as needed.
+         */
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        View view = LayoutInflater.from(context).inflate(R.layout.list_item_forecast, parent, false);
+        int viewType = getItemViewType(cursor.getPosition());
+        int layout_id = viewType==VIEW_TYPE_TODAY ? R.layout.list_item_forecast_firstelem : R.layout.list_item_forecast;
+        if(viewType==VIEW_TYPE_TODAY) {
+            Log.i(">>>>", "0 rowIdx");
+        }
+        View view = LayoutInflater.from(context).inflate(layout_id, parent, false);
+        ViewHolder viewHolder = new ViewHolder(view);
+        view.setTag(viewHolder);
 
         return view;
     }
@@ -65,12 +63,42 @@ public class ForecastAdapter extends CursorAdapter {
         // our view is pretty simple here --- just a text view
         // we'll keep the UI functional with a simple (and slow!) binding.
 
-        TextView tv = (TextView) view;
-        tv.setText(convertCursorRowToUXFormat(cursor));
+        int rowIdx = cursor.getPosition();
+        TextView textView = null;
+
+        boolean isMetric = Utility.isMetric(context);
+        String hi = Utility.formatTemperature(context, cursor.getDouble(MainActivityFragment.COL_WEATHER_MAX_TEMP), isMetric);
+        String lo = Utility.formatTemperature(context, cursor.getDouble(MainActivityFragment.COL_WEATHER_MIN_TEMP), isMetric);
+        String desc = cursor.getString(MainActivityFragment.COL_WEATHER_DESC);
+        String date = rowIdx==0? "Today" : Utility.getFriendlyDayString(context, cursor.getLong(MainActivityFragment.COL_WEATHER_DATE));
+
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
+        if(viewHolder!=null) {
+            viewHolder.highTempView.setText(hi);
+            viewHolder.lowTempView.setText(lo);
+            viewHolder.descriptionView.setText(desc);
+            viewHolder.dateView.setText(date);
+        }
     }
 
     @Override
     protected void onContentChanged() {
         super.onContentChanged();
+    }
+
+    public class ViewHolder {
+        public final ImageView iconView;
+        public final TextView dateView;
+        public final TextView descriptionView;
+        public final TextView highTempView;
+        public final TextView lowTempView;
+
+        public ViewHolder(View view) {
+            this.iconView = (ImageView) view.findViewById(R.id.id_list_item_icon);
+            this.dateView = (TextView) view.findViewById(R.id.id_list_item_date_textView);
+            this.descriptionView = (TextView) view.findViewById(R.id.id_list_item_forecast_textView);
+            this.highTempView = (TextView) view.findViewById(R.id.id_list_item_high_textView);
+            this.lowTempView = (TextView) view.findViewById(R.id.id_list_item_low_textView);
+        }
     }
 }

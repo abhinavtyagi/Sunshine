@@ -1,11 +1,11 @@
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">Sunshine</string>
     <string name="hello_world">Hello world Here\\!/</string>
     <string name="empty"> </string>
     <string name="action_settings">Settings</string>
     <string name="temperature1">21C</string>
     <string name="refresh">Refresh</string>
-    <string name="title_activity_detail">DetailActivity</string>
+    <string name="title_activity_detail">Details</string>
     <string name="preference_location">location</string>
     <string name="preference_location_default">94043</string>
     <string name="preference_unit">unit</string>
@@ -13,4 +13,30 @@
     <string name="preferences_metric_metric_value">metric</string>
     <string name="preferences_metric_imperial_value">imperial</string>
     <string name="openweather_apikey">77683bb70a7e7ea5d5aff7cf769efcfd</string>
+
+    <!-- Date label when displaying today's weather forecast [CHAR LIMIT=20] -->
+    <string name="today">Today</string>
+
+    <!-- Date label when displaying tomorrow's weather forecast [CHAR LIMIT=20] -->
+    <string name="tomorrow">Tomorrow</string>
+
+    <!-- Date format for displaying day of week and date (i.e. Mon Jun 1) [CHAR LIMIT=20] -->
+    <string name="format_full_friendly_date"><xliff:g id="day">%1$s</xliff:g>, <xliff:g id="date">%2$s</xliff:g></string>
+
+    <!-- Strings for formatting weather-related data -->
+    <!-- Temperature format [CHAR LIMIT=5] -->
+    <string name="format_temperature"><xliff:g id="temp">%1.0f</xliff:g>\u00B0</string>
+
+    <!-- Windspeed formats -->
+    <!-- Wind in mph [CHAR LIMIT=25] -->
+    <string name="format_wind_mph"> Wind: <xliff:g id="speed">%1$1.0f</xliff:g> mph <xliff:g id="direction">%2$s</xliff:g> </string>
+
+    <!-- Wind in kph [CHAR LIMIT=25] -->
+    <string name="format_wind_kmh">Wind: <xliff:g id="speed">%1$1.0f</xliff:g> km/h <xliff:g id="direction">%2$s</xliff:g> </string>
+
+    <!-- Pressure format CHAR LIMIT=25] -->
+    <string name="format_pressure">Pressure: <xliff:g id="pressure">%1.0f</xliff:g> hPa</string>
+
+    <!-- Humidity format CHAR LIMIT=25]-->
+    <string name="format_humidity">Humidity: <xliff:g id="humidity">%1.0f</xliff:g> %%</string>
 </resources>
