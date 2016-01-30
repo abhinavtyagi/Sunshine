@@ -21,8 +21,14 @@ import aktyagi.com.sunshine.data.WeatherContract;
  * from a {@link android.database.Cursor} to a {@link android.widget.ListView}.
  */
 public class ForecastAdapter extends CursorAdapter {
+    private boolean mUseTodayLayout;
     public ForecastAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
+        mUseTodayLayout = false;
+    }
+
+    public void setUseTodayLayout(boolean useTodayLayout) {
+        this.mUseTodayLayout = useTodayLayout;
     }
 
     private static int VIEW_TYPE_TODAY      = 0;
@@ -30,7 +36,7 @@ public class ForecastAdapter extends CursorAdapter {
 
     @Override
     public int getItemViewType(int position) {
-        return (position==0) ? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE_DAY;
+        return (position==0 && mUseTodayLayout) ? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE_DAY;
     }
 
     @Override
@@ -44,10 +50,9 @@ public class ForecastAdapter extends CursorAdapter {
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         int viewType = getItemViewType(cursor.getPosition());
-        int layout_id = viewType==VIEW_TYPE_TODAY ? R.layout.list_item_forecast_firstelem : R.layout.list_item_forecast;
-        if(viewType==VIEW_TYPE_TODAY) {
-            Log.i(">>>>", "0 rowIdx");
-        }
+        int layout_id;
+        layout_id = (viewType==VIEW_TYPE_TODAY)? R.layout.list_item_forecast_firstelem :
+                                                 R.layout.list_item_forecast;
         View view = LayoutInflater.from(context).inflate(layout_id, parent, false);
         ViewHolder viewHolder = new ViewHolder(view);
         view.setTag(viewHolder);
@@ -78,6 +83,8 @@ public class ForecastAdapter extends CursorAdapter {
             viewHolder.lowTempView.setText(lo);
             viewHolder.descriptionView.setText(desc);
             viewHolder.dateView.setText(date);
+            boolean bUseArtWork = rowIdx==0 && mUseTodayLayout;
+            viewHolder.iconView.setImageResource(Utility.getResourceIdByDesc(desc, bUseArtWork));
         }
     }
 

@@ -189,4 +189,34 @@ public class Utility {
     public static String getFormattedPressure(Context context, double pressure) {
         return context.getString(R.string.format_pressure, pressure);
     }
+
+    public static int getResourceIdByDesc(String desc, boolean isArt) {
+        int resId = 0;
+        if(desc.equalsIgnoreCase("clear")) {
+            resId = isArt? R.drawable.art_clear : R.drawable.ic_clear;
+        } else
+        if (desc.toLowerCase().startsWith("clouds")) {
+            resId = isArt? R.drawable.art_clouds : R.drawable.ic_cloudy;
+        } else
+        if (desc.equalsIgnoreCase("fog")) {
+            resId = isArt? R.drawable.art_fog : R.drawable.ic_fog;
+        } else
+        if (desc.equalsIgnoreCase("light clouds")) {
+            resId = isArt? R.drawable.art_light_clouds : R.drawable.ic_light_clouds;
+        }else
+        if (desc.equalsIgnoreCase("light rain")) {
+            resId = isArt? R.drawable.art_light_rain : R.drawable.ic_light_rain;
+        }else
+        if (desc.equalsIgnoreCase("rain")) {
+            resId = isArt? R.drawable.art_rain : R.drawable.ic_rain;
+        }else
+        if (desc.equalsIgnoreCase("snow")) {
+            resId = isArt? R.drawable.art_snow : R.drawable.ic_snow;
+        } else
+        if (desc.equalsIgnoreCase("storm")) {
+            resId = isArt? R.drawable.art_storm : R.drawable.ic_storm;
+        }
+        return resId;
+    }
+
 }

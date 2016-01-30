@@ -34,6 +34,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     private ForecastAdapter mForecastAdapter;
     private ListView listView = null;
     final static int MY_LOADER_ID = 0x12121212;
+    private int mPosition;
+    final static String LIST_POS="LIST_POS";
     private static final String[] FORECAST_COLUMNS = {
             // In this case the id needs to be fully qualified with a table name, since
             // the content provider joins the location & weather tables in the background
@@ -66,7 +68,11 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
 
     public MainActivityFragment() {
-
+        boolean b = false;
+        if (null!=(MainActivity)getActivity()) {
+            b = ((MainActivity)getActivity()).isTwoPane();
+        }
+        mPosition = 0;
     }
 
     @Override
@@ -87,8 +93,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         int id = item.getItemId();
         switch(id){
             case R.id.action_refresh:
-                                        updateWeather();
-                                        return true;
+                updateWeather();
+                return true;
             case R.id.action_maplocation:
                 onPreferredLocationInMap();
                 return true;
@@ -99,9 +105,10 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             final Bundle savedInstanceState) {
 
         mForecastAdapter = new ForecastAdapter(getActivity(), null, 0);
+        mForecastAdapter.setUseTodayLayout(((MainActivity)getActivity()).isTwoPane()==false);   // two pane dont use special layout for today
         View rootview = inflater.inflate(R.layout.fragment_main, container, false);
         listView = (ListView)rootview.findViewById(R.id.id_listview_forecast);
         listView.setAdapter(mForecastAdapter);
@@ -109,15 +116,24 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Cursor cursor = (Cursor) parent.getItemAtPosition(position);
-                if(cursor!=null) {
+                if (cursor != null) {
                     String location = Utility.getPreferredLocation(getActivity());
-                    Intent intent = new Intent(getActivity(), DetailActivity.class);
-                    intent.setData(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(location, cursor.getLong(COL_WEATHER_DATE)));
-                    startActivity(intent);
+                    Uri uri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(location, cursor.getLong(COL_WEATHER_DATE));
+                    ((Callback) getActivity()).onItemSelected(uri);
                 }
+                mPosition = position;
             }
         });
+        if (savedInstanceState!=null) {
+            mPosition = savedInstanceState.getInt(LIST_POS);
+        }
         return rootview;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(LIST_POS, mPosition);
     }
 
     @Override
@@ -128,6 +144,11 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     private void updateWeather(){
         String zip = Utility.getPreferredLocation(getActivity());
         new FetchWeatherTask(getActivity()).execute(zip);
+    }
+
+    public void setUseTodayLayout(boolean useTodayLayout) {
+        if(mForecastAdapter!=null)
+            mForecastAdapter.setUseTodayLayout(useTodayLayout);
     }
 
     @Override
@@ -166,10 +187,17 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mForecastAdapter.swapCursor(data);
+        if(mPosition!=0) {
+            listView.setSelection(mPosition);
+        }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mForecastAdapter.swapCursor(null);
+    }
+
+    public interface Callback {
+        public void onItemSelected(Uri uri);
     }
 }

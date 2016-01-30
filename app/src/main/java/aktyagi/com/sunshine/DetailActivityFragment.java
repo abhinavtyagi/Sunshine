@@ -1,6 +1,7 @@
 package aktyagi.com.sunshine;
 
 import android.content.Intent;
+import android.media.Image;
 import android.media.tv.TvContract;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -18,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v7.widget.ShareActionProvider;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.sql.Time;
@@ -33,8 +35,13 @@ import aktyagi.com.sunshine.data.WeatherContract;
 public class DetailActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
 
     private static int LOADER_DAF = 0x112211;
-    private String mForecast = null;
+    private String mForecast = null;    // holds forecast to be shared
+    private Uri mUri = null;
+    private TextView mDayView=null, mDateView=null, mTempHiView=null, mTempLoView=null, mHumidityView=null, mWindView=null, mPressureView=null,
+                     mDescView = null;
+    private ImageView mIconView=null;
     private ShareActionProvider mShareActionProvider;
+    public static String DETAIL_URI = "DETAIL_URI";
     private static final String[] mProjection = {
             WeatherContract.WeatherEntry.TABLE_NAME+"."+WeatherContract.WeatherEntry._ID,
             WeatherContract.WeatherEntry.COLUMN_DATE,
@@ -70,18 +77,32 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Bundle args = getArguments();
+        if(args!=null) {
+            mUri = args.getParcelable(DETAIL_URI);
+        }
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+        mDateView       = (TextView) rootView.findViewById(R.id.id_detailFragment_date);
+        mDayView        = (TextView) rootView.findViewById(R.id.id_detailFragment_day);
+        mIconView       = (ImageView) rootView.findViewById(R.id.id_detailFragment_icon);
+        mHumidityView   = (TextView) rootView.findViewById(R.id.id_detailFragment_humidity);
+        mIconView       = (ImageView) rootView.findViewById(R.id.id_detailFragment_icon);
+        mPressureView   = (TextView) rootView.findViewById(R.id.id_detailFragment_pressure);
+        mWindView       = (TextView) rootView.findViewById(R.id.id_detailFragment_wind);
+        mTempHiView     = (TextView) rootView.findViewById(R.id.id_detailFragment_tempHi);
+        mTempLoView     = (TextView) rootView.findViewById(R.id.id_detailFragment_tempLow);
+        mDescView       = (TextView) rootView.findViewById(R.id.id_detailFragment_desc);
         return rootView;
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String sortOrder=null, selection = null;
-        String[] selectionArgs = null;
-        Uri uri= getActivity().getIntent().getData();
-        CursorLoader cursorLoader;
-        cursorLoader = new CursorLoader(getActivity(), uri, mProjection, null, null, null);
-        return cursorLoader;
+        if (mUri!=null) {
+            CursorLoader cursorLoader;
+            cursorLoader = new CursorLoader(getActivity(), mUri, mProjection, null, null, null);
+            return cursorLoader;
+        }
+        return null;
     }
 
     private Intent createShareForecastIntent() {
@@ -118,7 +139,6 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
 
 
         mForecast = "#Sunshine - "+date+" Hi/Low "+max+"/"+min+" ("+desc+")";
-
         View view = getView();
         TextView tv = null;
         tv = (TextView) view.findViewById(R.id.id_detailFragment_day);
@@ -144,6 +164,10 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
 
         tv = (TextView) view.findViewById(R.id.id_detailFragment_desc);
         tv.setText(desc);
+
+        ImageView iv = (ImageView) view.findViewById(R.id.id_detailFragment_icon);
+        int resourceId = Utility.getResourceIdByDesc(desc, true);
+        iv.setImageResource(resourceId);
 
         if(mShareActionProvider!=null) {
             mShareActionProvider.setShareIntent(createShareForecastIntent());

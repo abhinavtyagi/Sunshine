@@ -6,46 +6,53 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="aktyagi.com.sunshine.DetailActivityFragment"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:background="@drawable/touch_selector">
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/id_list_item_icon"
-        android:layout_weight="0"
-        android:src="@drawable/forecast_image"
-        android:scaleType="centerInside" />
+    <FrameLayout
+        android:layout_width="60dp"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/id_list_item_icon"/>
+    </FrameLayout>
+
     <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_weight="1">
+        android:layout_weight="7">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/id_list_item_date_textView"
-            android:text="Date" />
+            android:text="Date"
+            android:textAppearance="?android:textAppearanceLarge"/>
         <TextView xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/id_list_item_forecast_textView"
-            android:text="Forecast" />
+            android:text="Forecast"
+            android:textAppearance="?android:textAppearanceSmall"/>
     </LinearLayout>
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="0"
+        android:layout_weight="5"
         android:orientation="vertical">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/id_list_item_high_textView"
-            android:text="Hi" />
+            android:layout_gravity="center"
+            android:textAppearance="?android:textAppearanceLarge"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/id_list_item_low_textView"
-            android:text="Low" />
+            android:layout_gravity="center"
+            android:textAppearance="?android:textAppearanceSmall"/>
     </LinearLayout>
 </LinearLayout>
 

@@ -1,27 +1,42 @@
 package aktyagi.com.sunshine;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity implements MainActivityFragment.Callback{
 
-    private String mLocation;
-    private static String FORECAST_FRAG_TAG = "FFT";
+    private String mLocation = null;
+    private static String FORECAST_FRAG_TAG = "FFTAG";
+    private static String DETAIL_FRAGMENT_TAG = "DFTAG";
+    private boolean mTwoPane = false;
+
+    public boolean isTwoPane() {
+        return mTwoPane;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if(savedInstanceState==null) {
-            MainActivityFragment mf = new MainActivityFragment();
-            getSupportFragmentManager().beginTransaction().add(R.id.container, mf, FORECAST_FRAG_TAG).commit();
+        if(findViewById(R.id.id_weather_detail_container)!=null) {
+            mTwoPane = true;
+            if(savedInstanceState==null) {
+                MainActivityFragment mf = new MainActivityFragment();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.id_weather_detail_container, new DetailActivityFragment(), DETAIL_FRAGMENT_TAG)
+                        .commit();
+            }
         }
         mLocation = Utility.getPreferredLocation(this);
+        MainActivityFragment fragment = (MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.id_fragment_forecast);
+        fragment.setUseTodayLayout(mTwoPane==false);
         Log.w("Info", "onCreate()"+this);
     }
 
@@ -76,12 +91,30 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        MainActivityFragment fragment = (MainActivityFragment) getSupportFragmentManager().findFragmentByTag(FORECAST_FRAG_TAG);
+        MainActivityFragment fragment = (MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.id_fragment_forecast);
         if(fragment!=null) {
             if (mLocation.equalsIgnoreCase(Utility.getPreferredLocation(this))==false) {
                 fragment.onLocationChanged();
             }
         }
         Log.w("Info", "onResume()"+this);
+    }
+
+    @Override
+    public void onItemSelected(Uri uri) {
+        if(mTwoPane==true) {
+            Bundle args = new Bundle();
+            args.putParcelable(DetailActivityFragment.DETAIL_URI, uri);
+            DetailActivityFragment fragment = new DetailActivityFragment();
+            fragment.setArguments(args);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.id_weather_detail_container, fragment, DETAIL_FRAGMENT_TAG)
+                    .commit();
+        }
+        else {
+            Intent intent = new Intent(this, DetailActivity.class);
+            intent.setData(uri);
+            startActivity(intent);
+        }
     }
 }
