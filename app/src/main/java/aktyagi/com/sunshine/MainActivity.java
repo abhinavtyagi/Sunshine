@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        android.support.v7.app.ActionBar bar = getSupportActionBar();
         if(findViewById(R.id.id_weather_detail_container)!=null) {
             mTwoPane = true;
             if(savedInstanceState==null) {
