@@ -3,4 +3,10 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="x_separation_detail_frag_views">32dp</dimen>
+
+    <dimen name="detail_frag_font_hi_size">64sp</dimen>
+    <dimen name="detail_frag_font_low_size">32sp</dimen>
+    <dimen name="detail_frag_font_normal">18sp</dimen>
+    <dimen name="detail_frag_font_small">16sp</dimen>
+
 </resources>

@@ -5,12 +5,24 @@
 
     <dimen name="x_separation_detail_frag_views">16dp</dimen>
 
-    <dimen name="font_hi_size">48dp</dimen>
-    <dimen name="font_low_size">36dp</dimen>
+    <dimen name="detail_frag_font_hi_size">96sp</dimen>
+    <dimen name="detail_frag_font_low_size">48sp</dimen>
+    <dimen name="detail_frag_font_normal">22sp</dimen>
+    <dimen name="detail_frag_font_small">20sp</dimen>
 
     <dimen name="font_regular_size">16dp</dimen>
     <dimen name="font_regular_size_detail">24dp</dimen>
 
     <dimen name="font_size_first_elem_listitem">20dp</dimen>
     <dimen name="font_size_listitem">16dp</dimen>
+    
+    <!--list item dimens (horizontal)-->
+    <dimen name="listitem_icon_width">60dp</dimen>
+    <!-- These are in ratio of 7:5; layout_weight with 0 dp width is used in xml
+    <dimen name="listitem_date_width">175</dimen>
+    <dimen name="listitem_temp_width">125dp</dimen>
+    -->
+    <dimen name="frag_detail_wide_date_view_width">180dp</dimen>
+    <dimen name="frag_detail_wide_padding_top">16dp</dimen>
+    <dimen name="frag_detail_wide_padding_left">16dp</dimen>
 </resources>

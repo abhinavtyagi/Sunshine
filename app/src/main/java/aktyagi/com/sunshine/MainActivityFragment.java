@@ -1,6 +1,10 @@
 package aktyagi.com.sunshine;
 
+import android.app.AlarmManager;
+import android.app.IntentService;
+import android.app.PendingIntent;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -25,12 +29,14 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 
 import aktyagi.com.sunshine.data.WeatherContract;
+import aktyagi.com.sunshine.service.SunshineService;
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class MainActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    private final static String LOG_TAG = MainActivityFragment.class.getSimpleName();
     private ForecastAdapter mForecastAdapter;
     private ListView listView = null;
     final static int MY_LOADER_ID = 0x12121212;
@@ -143,7 +149,15 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     private void updateWeather(){
         String zip = Utility.getPreferredLocation(getActivity());
-        new FetchWeatherTask(getActivity()).execute(zip);
+        // create an intent to be used in pi
+        Intent alarmIntent = new Intent(getActivity(), SunshineService.AlarmReceiver.class);
+        alarmIntent.putExtra(SunshineService.LOCATION_QUERY_EXTRA, zip);
+        // create a pi
+        PendingIntent pi = PendingIntent.getBroadcast(getActivity(),0,alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        // use alarm manager to send a pi
+        AlarmManager am = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
+        am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+5000, pi);
+        Log.i(LOG_TAG, "Registered alarm for 5 sec");
     }
 
     public void setUseTodayLayout(boolean useTodayLayout) {

@@ -29,6 +29,8 @@ import java.util.List;
 
 public class WeatherProvider extends ContentProvider {
 
+    private static final String LOG_TAG = WeatherProvider.class.getSimpleName();
+
     // The URI Matcher used by this content provider.
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private WeatherDbHelper mOpenHelper;
@@ -190,6 +192,7 @@ public class WeatherProvider extends ContentProvider {
                         String sortOrder) {
         // Here's the switch statement that, given a URI, will determine what kind of request it is,
         // and query the database accordingly.
+        Log.i(LOG_TAG, "Query()");
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
             // "weather/*/*"
